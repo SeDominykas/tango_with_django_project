@@ -15,6 +15,19 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# path to templates folder
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
+
+# path to static folder
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+
+# path to media folder
+MEDIA_DIR = os.path.join(BASE_DIR, 'media')
+
+
+MEDIA_ROOT = MEDIA_DIR
+MEDIA_URL = '/media/'
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -26,9 +39,6 @@ SECRET_KEY = 'h%8y&q1r66i+3adi6=fxd^tlu45g5i0)7b(^3b_%0d10nj*)$r'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
-# path to templates folder
-TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 
 
 # Application definition
@@ -66,6 +76,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media'
             ],
         },
     },
@@ -120,5 +131,8 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
+
+# This is a list of paths with which Django can expect to find static files that can be served
+STATICFILES_DIRS = [STATIC_DIR, ]
 
 STATIC_URL = '/static/'
