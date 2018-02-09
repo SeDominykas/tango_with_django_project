@@ -41,6 +41,11 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+# This ensures that the login_required() decorator will
+# redirect any user not logged in to the URL /rango/login/.
+LOGIN_URL = '/rango/login/'
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -105,6 +110,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': { 'min_length': 6,}
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
