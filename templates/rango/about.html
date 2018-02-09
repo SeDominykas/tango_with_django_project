@@ -10,10 +10,12 @@
 		<div>
 			This tutorial has been put together by Dominykas Senkus<br>
         </div>
+        <p> visits: {{ visits }}</p>
 		<div>
 			<img src="{{MEDIA_URL}}cat.jpg"
-                 alt="Picture of a grumpy cat" />
+                 alt="Picture of a grumpy cat"height="800" width="800" />
 			<img src="{% static "images/rango.jpg" %}"
-			     alt="Picture of Rango" /><br>
+			     alt="Picture of Rango" height="450" width="800" />
 		</div>
+
 {% endblock %}

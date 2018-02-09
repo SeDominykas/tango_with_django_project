@@ -1,10 +1,11 @@
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
-from rango.models import Category, Page
+from rango.models import Category, Page, User
 from rango.forms import CategoryForm, PageForm, UserForm, UserProfileForm
 from django.contrib.auth import authenticate, login, logout
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
+from datetime import datetime
 
 
 def index(request):
@@ -12,11 +13,26 @@ def index(request):
     most_viewed_pages = Page.objects.order_by('-views')[:5]
     context_dict = {'categories': category_list, 'pages': most_viewed_pages}
 
-    return render(request, 'rango/index.html', context=context_dict)
+    # Call function to handle the cookies
+    visitor_cookie_handler(request)
+    context_dict['visits'] = request.session['visits']
+
+    # Return response back to the user, updating any cookies that need changed.
+
+    # Obtain our Response object early so we can add cookie information.
+    response = render(request, 'rango/index.html', context=context_dict)
+
+    return response
 
 
 def about(request):
-    return render(request, 'rango/about.html')
+    # Call function to handle the cookies
+    visitor_cookie_handler(request)
+    context_dict = {'visits': request.session['visits']}
+    response = render(request, 'rango/about.html', context=context_dict)
+
+    return response
+    # return render(request, 'rango/about.html')
 
 
 def show_category(request, category_name_slug):
@@ -164,7 +180,11 @@ def user_login(request):
                 return HttpResponse("Your Rango account is disabled.")
         else:
             # Bad login details were provided. So we can't log the user in.
-            print("Invalid login details: {0}, {1}".format(username, password))
+            if User.objects.filter(username=username).exists():
+                print("Invalid login details (password): {0}, {1}".format(username, password))
+                return HttpResponse("Invalid password.")
+            else:
+                print("Invalid login details: {0}, {1}".format(username, password))
             return HttpResponse("Invalid login details supplied.")
     # The request is not a HTTP POST, so display the login form.
     # This scenario would most likely be a HTTP GET.
@@ -186,3 +206,29 @@ def user_logout(request):
 @login_required
 def restricted(request):
     return render(request, 'rango/restricted.html', {})
+
+
+# A helper method
+def get_server_side_cookie(request, cookie, default_val=None):
+    val = request.session.get(cookie)
+    if not val:
+        val = default_val
+    return val
+
+
+# Updated the function definition
+def visitor_cookie_handler(request):
+    visits = int(get_server_side_cookie(request, 'visits', '1'))
+    last_visit_cookie = get_server_side_cookie(request, 'last_visit', str(datetime.now()))
+    last_visit_time = datetime.strptime(last_visit_cookie[:-7], '%Y-%m-%d %H:%M:%S')
+    # If it's been more than a day since the last visit...
+    if (datetime.now() - last_visit_time).days > 0:
+        visits = visits + 1
+        # update the last visit cookie now that we have updated the count
+        request.session['last_visit'] = str(datetime.now())
+    else:
+        visits = 1
+        # set the last visit cookie
+        request.session['last_visit'] = last_visit_cookie
+    # Update/set the visits cookie
+    request.session['visits'] = visits
